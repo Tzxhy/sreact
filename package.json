@@ -1,0 +1,23 @@
+{
+  "name": "sreact",
+  "version": "0.0.1",
+  "description": "a simplyfied reactive library",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tzxhy/sreact.git"
+  },
+  "keywords": [
+    "reactive",
+    "fe-framework"
+  ],
+  "author": "tzxhy",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Tzxhy/sreact/issues"
+  },
+  "homepage": "https://github.com/Tzxhy/sreact#readme"
+}
