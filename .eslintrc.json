@@ -1,0 +1,25 @@
+{
+    "parser": "typescript-eslint-parser",
+    "plugins": [
+        "react",
+        "typescript"
+    ],
+    "extends": [
+        "eslint:recommended",
+        "plugin:react/recommended"
+    ],
+    "rules": {
+        "semi": "error",
+        "indent": ["error", 4]
+    },
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "jsx": true
+        }
+    },
+    "env": {
+        "browser": true
+    }
+}

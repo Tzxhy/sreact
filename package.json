@@ -4,6 +4,7 @@
   "description": "a simplyfied reactive library",
   "main": "src/index.js",
   "scripts": {
+    "start": "rollup -c config/rollup.config.dev.js -w",
     "test": "test"
   },
   "repository": {
@@ -19,5 +20,23 @@
   "bugs": {
     "url": "https://github.com/Tzxhy/sreact/issues"
   },
-  "homepage": "https://github.com/Tzxhy/sreact#readme"
+  "homepage": "https://github.com/Tzxhy/sreact#readme",
+  "devDependencies": {
+    "@babel/core": "^7.1.5",
+    "@babel/preset-env": "^7.1.5",
+    "babel-preset-es2015-rollup": "^3.0.0",
+    "eslint-plugin-react": "^7.11.1",
+    "eslint-plugin-typescript": "^0.13.0",
+    "rollup": "^0.67.0",
+    "rollup-plugin-babel": "^4.0.3",
+    "rollup-plugin-typescript2": "^0.17.2",
+    "typescript": "^3.1.6",
+    "typescript-eslint-parser": "^20.1.1"
+  },
+  "dependencies": {
+    "rollup-plugin-eslint": "^5.0.0"
+  },
+  "eslintIgnore": [
+    "config"
+  ]
 }
