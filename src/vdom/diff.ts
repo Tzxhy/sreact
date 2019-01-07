@@ -1,56 +1,49 @@
-import vDomNode, {hsNode, vNode, HtmlSReactElement, createVDomNode} from './vnode';
+import {
+    vDomNode,
+    hsNode,
+    vNode,
+    HtmlSReactElement,
+    createVDomNode
+} from './vnode';
 import {addUpdate, forceUpdate} from './render-vdom';
 import {createElement, createTextNode} from '../dom/dom';
+import {
+    vDomContain
+} from './vnode';
 
-let vDomTree: vDomNode;
-let vDomTreeMap: Map<string, vDomNode>;
+let justOnce = false;
 
-const diff = function(hsNode: hsNode, dom: HTMLElement, isFirstMount: boolean) {
-    if (isFirstMount) {
-        vDomTree = createVDomNode(hsNode as hsNode);
-        vDomTreeMap = new Map();
-        vDomTreeMap.set(vDomTree.id, vDomTree);
+function createRootContainer(hsNode: hsNode) {
+    vDomContain.vDomTree = createVDomNode(hsNode);
+    vDomContain.vDomTreeMap = new Map();
+    vDomContain.vDomTreeMap.set(vDomContain.vDomTree.id, vDomContain.vDomTree);
+}
+
+const diff = function(hsNode: hsNode, isFirstMount: boolean, rootDom?: HtmlSReactElement, nextProps?: object, nextState?: object): undefined | vDomNode {
+
+    if (isFirstMount && !justOnce) {
+        createRootContainer(hsNode);
+        justOnce = true;
     }
-    if (!dom) {
+
+    if (isFirstMount && !rootDom) {
         console.error('React.render传入的DOM元素不存在!');
         return;
     }
+    let ret: null | vDomNode = null;
+    if (rootDom) {
+        ret = createVDomNode(hsNode, rootDom);
+    } else { // TODO
+        if (typeof hsNode.nodeName === 'string') {
 
-    let ret = idiff(hsNode);
+        } else if (typeof hsNode.nodeName === 'function') {
+
+        }
+    }
     if (ret) {
-        if (isFirstMount) {
-            forceUpdate(ret, dom);
-        } else {
-            addUpdate(ret, dom);
-        }
+        return ret;
     }
-    
+
 }
-
-function idiff(hsNode: hsNode): vDomNode {
-    let ret: vDomNode;
-    if (typeof hsNode === 'string') {
-        if (dom.innerHTML !== component) {
-            return createTextNode(component);
-        }
-    }
-    if ((<hsNode>hsNode).nodeName) {
-        const vNode = vDomTreeMap.get((hsNode as hsNode).id);
-        if (!vNode) {
-            const newVNode = createVDomNode(hsNode as hsNode);
-            vDomTreeMap.set(newVNode.id, newVNode);
-            return newVNode;
-        }
-        for (let key in (<hsNode>component).attributes) {
-            if (dom[key] !== (<hsNode>component).attributes[key]) {
-                let ele: HtmlSReactElement = createElement(component);
-                return ele;
-            }
-        }
-    }
-
-    return null;
-}
-
 
 export default diff;

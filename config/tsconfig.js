@@ -16,6 +16,6 @@ export default {
         ],
         "outDir": "dist"
     },
-    include: 'src/**/*',
+    include: ['**/**/*']
     
 };

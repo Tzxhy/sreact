@@ -14,6 +14,6 @@ export default {
     plugins: [
         // eslint(eslintConfig),
         typescript(tsConfig),
-        // babel(babelConfig),
+        babel(babelConfig),
     ]
 };

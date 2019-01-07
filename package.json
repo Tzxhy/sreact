@@ -34,6 +34,7 @@
     "typescript-eslint-parser": "^20.1.1"
   },
   "dependencies": {
+    "@babel/preset-react": "^7.0.0",
     "rollup-plugin-eslint": "^5.0.0"
   },
   "eslintIgnore": [

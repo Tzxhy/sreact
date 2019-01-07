@@ -17,10 +17,12 @@ export const createElement = function(hsNode: hsNode | string) {
         }
         // copy attributes onto the new node:
         let a = (<hsNode>hsNode).attributes;
-        a && Object.keys(a).forEach(k => n.setAttribute(k, a[k]));
+        if (a) {
+            Object.keys(a).forEach(k => n.setAttribute(k, (a as {})[k]));
+        }
 
         // render (build) and then append child nodes:
-        if ((<hsNode>hsNode).children && 'length' in (<hsNode>hsNode).children) {
+        if ((<hsNode>hsNode).children) {
             ((<hsNode>hsNode).children as []).forEach(c => n.appendChild(createElement(c)));
         }
     }
