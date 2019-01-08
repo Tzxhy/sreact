@@ -14,15 +14,19 @@ import {
 let justOnce = false;
 
 function createRootContainer(hsNode: hsNode, rootDom) {
+    console.log('feesfesfes')
+    vDomContain.vDomTreeMap = vDomContain.vDomTreeMap || new Map();
     vDomContain.vDomTree = createVDomNode(hsNode, rootDom);
-    vDomContain.vDomTreeMap = new Map();
-    vDomContain.vDomTreeMap.set(vDomContain.vDomTree.id, vDomContain.vDomTree);
+    // vDomContain.vDomTreeMap.set(vDomContain.vDomTree.id, vDomContain.vDomTree);
+    return vDomContain.vDomTree;
 }
 
-const diff = function(hsNode: hsNode, isFirstMount: boolean, rootDom?: HtmlSReactElement, nextProps?: object, nextState?: object): undefined | vDomNode {
+const diffControl = function(hsNode: hsNode, isFirstMount: boolean, rootDom?: HtmlSReactElement, nextProps?: object, nextState?: object): undefined | vDomNode {
+
+    let ret: null | vDomNode = null;
 
     if (isFirstMount && !justOnce) {
-        createRootContainer(hsNode, rootDom);
+        ret = createRootContainer(hsNode, rootDom);
         justOnce = true;
     }
 
@@ -30,15 +34,9 @@ const diff = function(hsNode: hsNode, isFirstMount: boolean, rootDom?: HtmlSReac
         console.error('React.render传入的DOM元素不存在!');
         return;
     }
-    let ret: null | vDomNode = null;
+    
     if (rootDom && !isFirstMount) {
         ret = createVDomNode(hsNode, rootDom);
-    } else { // TODO
-        if (typeof hsNode.nodeName === 'string') {
-
-        } else if (typeof hsNode.nodeName === 'function') {
-
-        }
     }
     if (ret) {
         return ret;
@@ -46,4 +44,4 @@ const diff = function(hsNode: hsNode, isFirstMount: boolean, rootDom?: HtmlSReac
 
 }
 
-export default diff;
+export default diffControl;

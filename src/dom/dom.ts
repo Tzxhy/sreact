@@ -1,5 +1,13 @@
+import {
+    vDomContain
+} from '../vdom/vnode';
 
 import {hsNode, HtmlSReactElement} from '../vdom/vnode';
+
+export const createElementWrapper = function() {
+    return document.createElement('div');
+}
+
 export const createElement = function(hsNode: hsNode | string) {
     // Strings just convert to #text Nodes:
     // if ((<string>vnode).split) return document.createTextNode((<string>vnode));
@@ -9,21 +17,24 @@ export const createElement = function(hsNode: hsNode | string) {
     if (typeof hsNode === 'string') {
         n = createTextNode(hsNode as string);
     } else {
-        if (typeof (<hsNode>hsNode).nodeName === 'string') {
-            n = document.createElement((<hsNode>hsNode).nodeName as string) as HTMLElement;
+        if (typeof hsNode.nodeName === 'string') {
+            n = document.createElement(hsNode.nodeName as string) as HTMLElement;
         }
-        if (typeof (<hsNode>hsNode).nodeName === 'function') {
+        if (typeof hsNode.nodeName === 'function') {
             // function 组件定义TODO
+            const vNode = vDomContain.vDomTreeMap.get(hsNode.id);
+            n = createElementWrapper();
+            // debugger;
         }
         // copy attributes onto the new node:
-        let a = (<hsNode>hsNode).attributes;
+        let a = hsNode.attributes;
         if (a) {
             Object.keys(a).forEach(k => n.setAttribute(k, (a as {})[k]));
         }
 
         // render (build) and then append child nodes:
-        if ((<hsNode>hsNode).children) {
-            ((<hsNode>hsNode).children as []).forEach(c => n.appendChild(createElement(c)));
+        if (hsNode.childrenSlot) {
+            (hsNode.childrenSlot as []).forEach(c => n.appendChild(createElement(c)));
         }
     }
     return n;
@@ -64,5 +75,10 @@ function polyfill() {
 polyfill();
 export const replaceElement = function(oldEle, newEle) {
     oldEle.replaceWith(newEle);
+}
+
+export const replaceChildren = function(targetEle: HTMLElement, childrenEle) {
+    targetEle.innerHTML = '';
+    targetEle.appendChild(childrenEle);
 }
 

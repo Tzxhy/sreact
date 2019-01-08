@@ -1,6 +1,8 @@
 import {vNode, HtmlSReactElement} from './vnode';
 import {
-    vDomNode
+    vDomNode,
+    vDomCollection,
+    getNodeById
 } from './vnode';
 import {uniqueUpdateId} from '../helper/string';
 import {
@@ -8,8 +10,11 @@ import {
 } from './vnode';
 import {
     createElement,
-    replaceElement
+    replaceChildren
 } from '../dom/dom';
+import {
+    idleCallback
+} from './definition';
 
 interface Update {
     vNode: vNode,
@@ -21,33 +26,6 @@ interface Update {
     recordEnd?: number,
     updateId: string
 }
-
-type RequestIdleCallbackHandle = any;
-type RequestIdleCallbackOptions = {
-  timeout: number;
-};
-type RequestIdleCallbackDeadline = {
-  readonly didTimeout: boolean;
-  timeRemaining: (() => number);
-};
-declare global {
-    interface Window { vDomContain: any; }
-}
-declare global {
-  interface Window {
-    requestIdleCallback: ((
-      callback: ((deadline: RequestIdleCallbackDeadline) => void),
-      opts?: RequestIdleCallbackOptions,
-    ) => RequestIdleCallbackHandle);
-    cancelIdleCallback: ((handle: RequestIdleCallbackHandle) => void);
-  }
-
-}
-interface idleCallback {
-    (callback, time?): void;
-}
-
-const idleCallback: idleCallback = window.requestIdleCallback ? window.requestIdleCallback : setTimeout;
 
 const arrayRenderList: Update[] = [];
 enum RENDER_MODE {
@@ -117,16 +95,19 @@ function scheduleWork(renderMode: RENDER_MODE) {
 
 function performRender(update: Update): void {
     update.recordStart = +new Date();
-
+    // debugger;
     const {vNode} = update;
-    const hsNode = vNode.hsNode;
-    const vDomNode = vDomContain.vDomTreeMap.get(vNode.id);
-    if (vDomNode) {
-        const dom = vDomNode.domNode;
-        if (!dom && hsNode) {
-            const newDom = createElement(hsNode);
-            console.log('update', update);
-            console.log('newDom', newDom);
+    const {
+        vD,
+        hs
+    } = vDomContain.vDomTreeMap.get(vNode.id) as vDomCollection;
+    debugger;
+    if (vD) {
+        const dom = vD.domNode;
+        if (dom && hs) {
+            console.log('hsNode', hs);
+            const newDom = createElement(hs);
+            replaceChildren(dom, newDom);
         }
     }
 
