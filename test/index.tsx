@@ -7,4 +7,4 @@ class App extends React.Component {
 }
 
 /* eslint-disable */
-React.render(<App data={{name: 'tzx'}}/>, document.getElementById('root'));
+React.render(<div data={'111'}>222<p>333<a href="##">444</a></p></div>, document.getElementById('root'));

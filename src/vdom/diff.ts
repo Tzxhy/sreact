@@ -13,8 +13,8 @@ import {
 
 let justOnce = false;
 
-function createRootContainer(hsNode: hsNode) {
-    vDomContain.vDomTree = createVDomNode(hsNode);
+function createRootContainer(hsNode: hsNode, rootDom) {
+    vDomContain.vDomTree = createVDomNode(hsNode, rootDom);
     vDomContain.vDomTreeMap = new Map();
     vDomContain.vDomTreeMap.set(vDomContain.vDomTree.id, vDomContain.vDomTree);
 }
@@ -22,7 +22,7 @@ function createRootContainer(hsNode: hsNode) {
 const diff = function(hsNode: hsNode, isFirstMount: boolean, rootDom?: HtmlSReactElement, nextProps?: object, nextState?: object): undefined | vDomNode {
 
     if (isFirstMount && !justOnce) {
-        createRootContainer(hsNode);
+        createRootContainer(hsNode, rootDom);
         justOnce = true;
     }
 
@@ -31,7 +31,7 @@ const diff = function(hsNode: hsNode, isFirstMount: boolean, rootDom?: HtmlSReac
         return;
     }
     let ret: null | vDomNode = null;
-    if (rootDom) {
+    if (rootDom && !isFirstMount) {
         ret = createVDomNode(hsNode, rootDom);
     } else { // TODO
         if (typeof hsNode.nodeName === 'string') {
