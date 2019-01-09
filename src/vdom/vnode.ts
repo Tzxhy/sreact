@@ -126,9 +126,10 @@ export function createVNode(hsNode: hsNode | string, isChild = false): vNode {
             children: hsNode.childrenSlot && hsNode.childrenSlot.map(item => createVNode(item, true))
         }
         isChild && updateHsNode(hsNode.id, hsNode);
-    } else { // 组件
+    } else if (typeof hsNode.nodeName === 'function') { // 组件
         const reactComponent : vNode = new hsNode.nodeName({
-            ...(hsNode.attributes || EMPTY_OBJ)
+            ...(hsNode.attributes || EMPTY_OBJ),
+            children: hsNode.childrenSlot
         });
         
         reactComponent.id = hsNode.id;
@@ -145,6 +146,8 @@ export function createVNode(hsNode: hsNode | string, isChild = false): vNode {
 
         reactComponent.children = childrenSlot && childrenSlot.map(item => createVNode(item, true));
         vNode = reactComponent;
+    } else { // 数组
+        vNode = ({} as vNode);
     }
 
     // updateVNode(vNode.id, vNode);

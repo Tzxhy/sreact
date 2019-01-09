@@ -19,14 +19,16 @@ export const createElement = function(hsNode: hsNode | string) {
     } else {
         if (typeof hsNode.nodeName === 'string') {
             n = document.createElement(hsNode.nodeName as string) as HTMLElement;
-        }
-        if (typeof hsNode.nodeName === 'function') {
+        } else if (typeof hsNode.nodeName === 'function') {
             // function 组件定义TODO
             const vNode = vDomContain.vDomTreeMap.get(hsNode.id);
             n = createElementWrapper();
-            // debugger;
+        } else if (Array.isArray(hsNode)) {
+            n = createElementWrapper();
+            hsNode.map(item => createElement(item)).forEach(
+                item => n.appendChild(item)
+            );
         }
-        // copy attributes onto the new node:
         let a = hsNode.attributes;
         if (a) {
             Object.keys(a).forEach(k => n.setAttribute(k, (a as {})[k]));
