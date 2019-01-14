@@ -1,14 +1,11 @@
 import {
-    vDomContain
+    getNodeById
 } from '../vdom/vnode';
 import {
     transformedNodeName
 } from '../hs';
 import {hsNode, HtmlSReactElement} from '../vdom/vnode';
 
-export const createElementWrapper = function() {
-    return document.createElement('div');
-}
 
 export const createElement = function(hsNode: hsNode) {
     let n;
@@ -17,15 +14,8 @@ export const createElement = function(hsNode: hsNode) {
         n = createTextNode(hsNode.textValue as string);
     } else if (typeof hsNode.nodeName === 'string') {
         n = document.createElement(hsNode.nodeName as string) as HTMLElement;
-    } else if (typeof hsNode.nodeName === 'function') {
-        // function 组件定义TODO
-        const vNode = vDomContain.vDomTreeMap.get(hsNode.id);
-        n = createElementWrapper();
-    } else if (Array.isArray(hsNode)) {
-        n = createElementWrapper();
-        hsNode.map(item => createElement(item)).forEach(
-            item => n.appendChild(item)
-        );
+    } else {
+        throw new Error('hsNode类型未知');
     }
     let a = hsNode.attributes;
     if (a) {
@@ -34,6 +24,16 @@ export const createElement = function(hsNode: hsNode) {
 
     if (hsNode.childrenSlot) {
         (hsNode.childrenSlot as []).forEach(c => n.appendChild(createElement(c)));
+    }
+    if (n) {
+        const vCollectionNode = getNodeById(hsNode.id);
+        vCollectionNode.vD.domNode = n;
+
+        const vNode = vCollectionNode.v;
+        if (vNode.componentDidMount && !vNode.__hasCalledComponentDidMount) {
+            vNode.__hasCalledComponentDidMount = true;
+            vNode.componentDidMount && vNode.componentDidMount();
+        }
     }
     return n;
 }

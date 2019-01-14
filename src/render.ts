@@ -4,14 +4,16 @@ import {
 } from './vdom/render-vdom';
 import {uniqueId} from './helper/string';
 import diff from './vdom/diff';
+import {
+    env
+} from './helper/switch';
 
 interface Irender {
   (hsNode: hsNode, dom);
   hasFirstMount?: boolean
 }
 const render: Irender = function (hsNode: hsNode, dom) {
-
-    if (render.hasFirstMount) {
+    if (render.hasFirstMount && env !== 'DEBUG') {
         console.error('React.render只应该被调用一次');
         return;
     }
@@ -19,7 +21,7 @@ const render: Irender = function (hsNode: hsNode, dom) {
     const result = diff(hsNode, true, dom); // 判断dom对应的hsNode是否改变。
     // 改变的话，diff生成一个vDomNode
     if (result) {
-        debugger;
+        // debugger;
         renderComponent(result);
     }
     render.hasFirstMount = true;
@@ -28,5 +30,12 @@ const render: Irender = function (hsNode: hsNode, dom) {
 
 function renderComponent(vDomNode) {
     return forceUpdate(vDomNode);
+}
+
+
+if ((module as any).hot) {
+  (module as any).hot.dispose(function() {
+    console.log(111)
+  })
 }
 export default render;

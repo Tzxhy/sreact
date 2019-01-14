@@ -16,7 +16,7 @@ export default {
         ],
         "outDir": "dist"
     },
-    include: ['**/**/*'],
+    include: ['src/**/*'],
     "baseUrl": "types",
     "typeRoots": ["types"]
     

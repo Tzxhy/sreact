@@ -7,35 +7,32 @@ import {
     createVNode,
     updateNodeByArray
 } from './vdom/vnode';
-import R from 'ramda';
+import {flatten} from 'ramda';
 
 
 function hs(nodeName: string | nodeName, attributes, ...children) : hsNode {
 
-    let childrenSlot = children.length ? R.flatten(children) : null;
+    let childrenSlot = children.length ? flatten(children) : null;
     let ret = {
         nodeName,
         attributes,
         childrenSlot,
         id: uniqueId(typeof nodeName === 'string' ? nodeName.toUpperCase() : '@f' + nodeName.name.toUpperCase())
     };
-
-    console.log('ret in hs', ret);
-    debugger;
     ret = transformHsNode(ret);
     return ret;
 }
 export const transformedNodeName = {
-    FULL_TEXT: 'FULL_TEXT'
+    FULL_TEXT: 'FULL_TEXT',
+    FULL_NUMBER: 'FULL_NUMBER',
 };
 
 
 function transformHsNode(hsNode: hsNode): hsNode {
-    // debugger;
 
     let vNode = createVNode(hsNode);
-    debugger;
     let newHsNode: hsNode;
+    
     if (vNode.render) { // 组件
         newHsNode = vNode.render.call(vNode);
         newHsNode.id = hsNode.id;
@@ -59,6 +56,16 @@ function getHsNodeFromSingleString(str: string): hsNode {
     };
 }
 
+function getHsNodeFromSingleNumber(number): hsNode {
+    return {
+        nodeName: transformedNodeName.FULL_TEXT,
+        attributes: null,
+        childrenSlot: null,
+        id: uniqueId('@N'),
+        textValue: number
+    };
+}
+
 export function transformChildSlot(hsNode: hsNode): hsNode {
     const newHsNode: hsNode = {
         ...hsNode
@@ -70,7 +77,15 @@ export function transformChildSlot(hsNode: hsNode): hsNode {
 
             updateNodeByArray(stringHsNode.id, [stringHsNode, vNode]);
             return stringHsNode;
-        }
+        } else if (typeof item === 'number') {
+            const numberHsNode: hsNode = getHsNodeFromSingleNumber(item);
+            const vNode = createVNode(numberHsNode);
+
+            updateNodeByArray(numberHsNode.id, [numberHsNode, vNode]);
+            return numberHsNode;
+        }/* else if (typeof item === 'object') {
+            throw new Error('不能直接渲染对象！');
+        }*/
         return item;
     });
     return newHsNode;

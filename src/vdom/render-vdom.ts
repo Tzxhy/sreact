@@ -2,7 +2,8 @@ import {vNode, HtmlSReactElement} from './vnode';
 import {
     vDomNode,
     vDomCollection,
-    getNodeById
+    getNodeById,
+    updateHsNode
 } from './vnode';
 import {uniqueUpdateId} from '../helper/string';
 import {
@@ -41,10 +42,16 @@ let isUpdating: boolean = false;
 let isWaiting: boolean = true;
 
 
-export function addUpdate(vDomNode: vDomNode) {
-    
-    isWaiting && idleCallback(scheduleWork);
-    isWaiting = false;
+export function addUpdate(vNode, nextData: {
+    // nextProps: object,
+    nextState: object
+}) {
+    arrayRenderList.push(createUpdate(vNode, nextData));
+    if (isWaiting) {
+        renderMode = RENDER_MODE.ARRAY_RENDER;
+        idleCallback(scheduleWork);
+    }
+    // isWaiting = false;
 }
 
 export function forceUpdate(vDomNode: vDomNode) {
@@ -52,11 +59,12 @@ export function forceUpdate(vDomNode: vDomNode) {
     const needUpdateVNode = vDomNode.vNode;
     if (needUpdateVNode) {
         update = createUpdate(needUpdateVNode, {
-            nextProps: needUpdateVNode.props || {},
+            // nextProps: needUpdateVNode.props || {},
             nextState: needUpdateVNode.state || {}
         });
         forceUpdateObj = update;
-        scheduleWork(RENDER_MODE.FORCE_RENDER);
+        renderMode = RENDER_MODE.FORCE_RENDER;
+        scheduleWork();
     } else {
         throw new Error('进入forceUpdate的参数vDomNode中不含有vNode节点'); // TODO
     }
@@ -64,21 +72,21 @@ export function forceUpdate(vDomNode: vDomNode) {
 }
 
 function createUpdate(vNode: vNode, {
-    nextProps = {},
-    nextState = {}
+    nextState
 }): Update {
     return {
         vNode,
-        nextProps,
+        // nextProps,
         nextState,
         recordStart: 0, // TODO：更新前修改
         recordEnd: 0, // TODO：更新前修改
         updateId: uniqueUpdateId()
     };
 }
-
-function scheduleWork(renderMode: RENDER_MODE) {
+let renderMode: RENDER_MODE;
+function scheduleWork() {
     isUpdating = true, isWaiting = false;
+    debugger;
     switch (renderMode) {
         case RENDER_MODE.FORCE_RENDER:
             if (forceUpdateObj) {
@@ -86,7 +94,11 @@ function scheduleWork(renderMode: RENDER_MODE) {
             }
             break;
         case RENDER_MODE.ARRAY_RENDER:
-            
+            debugger;
+            arrayRenderList.forEach(
+                item => performRender(item)
+            )
+            debugger;
             arrayRenderList.length = 0;
             break;
     }
@@ -95,17 +107,22 @@ function scheduleWork(renderMode: RENDER_MODE) {
 
 function performRender(update: Update): void {
     update.recordStart = +new Date();
-    // debugger;
+
     const {vNode} = update;
-    const {
+    let {
         vD,
         hs
     } = vDomContain.vDomTreeMap.get(vNode.id) as vDomCollection;
-    debugger;
+    if (update.nextState && vNode.render) {
+        hs = vNode.render.call({
+            ...vNode,
+            state: update.nextState
+        });
+        updateHsNode(vNode.id, hs);
+    }
     if (vD) {
         const dom = vD.domNode;
         if (dom && hs) {
-            console.log('hsNode', hs);
             const newDom = createElement(hs);
             replaceChildren(dom, newDom);
         }

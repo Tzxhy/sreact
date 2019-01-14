@@ -30,7 +30,8 @@ export interface vNode {
     setState?: (partialState: object, callback?: () => void) => void,
     id: string,
     children?: vNode[] | null | undefined | void,
-    nodeType: number | string
+    nodeType: number | string,
+    componentDidMount?: () => void
 }
 
 
@@ -192,10 +193,9 @@ export function createVDomNode(hsNode: hsNode, dom?: HTMLElement, parentHsNode?:
 
     const vDomNode: vDomNode = ({} as vDomNode);
     const coll = getNodeById(hsNode.id);
-    
-    console.log('coll', coll);
-    const vNode = coll.v;
 
+    const vNode = coll.v;
+    console.log('coll', coll);
     let domNode = dom;
 
     const isChildArray = Array.isArray(hsNode.childrenSlot);
@@ -226,7 +226,7 @@ export function createVDomNode(hsNode: hsNode, dom?: HTMLElement, parentHsNode?:
     vDomNode.id = hsNode.id;
     vDomNode.hsNode = hsNode;
     vDomNode.vNode = vNode;
-    debugger;
+
     updateVDomNode(vNode.id, vDomNode);
     console.log('ret', vDomNode);
     return vDomNode;

@@ -51,7 +51,7 @@ const diffControl: IdiffControl = function(
 
 
 function createRootContainer(hsNode: hsNode, rootDom) {
-    debugger;
+
     vDomContain.vDomTreeMap = vDomContain.vDomTreeMap || new Map();
     vDomContain.vDomTree = createVDomNode(hsNode, rootDom);
     return vDomContain.vDomTree;

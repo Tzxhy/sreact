@@ -4,7 +4,7 @@
   "description": "a simplyfied reactive library",
   "main": "src/index.js",
   "scripts": {
-    "start": "rollup -c config/rollup.config.dev.js -w",
+    "start": "parcel test/index.html",
     "test": "test"
   },
   "repository": {
@@ -43,5 +43,8 @@
   },
   "eslintIgnore": [
     "config"
-  ]
+  ],
+  "bak": "rollup -c config/rollup.config.dev.js -w"
 }
+
+
