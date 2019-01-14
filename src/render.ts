@@ -4,21 +4,25 @@ import {
 } from './vdom/render-vdom';
 import {uniqueId} from './helper/string';
 import diff from './vdom/diff';
-let isFirstMount = true;
 
-function render(hsNode: hsNode, dom) {
-    if (!isFirstMount) {
+interface Irender {
+  (hsNode: hsNode, dom);
+  hasFirstMount?: boolean
+}
+const render: Irender = function (hsNode: hsNode, dom) {
+
+    if (render.hasFirstMount) {
         console.error('React.render只应该被调用一次');
         return;
     }
-    // const vNode = createVNode(hsNode);
+
     const result = diff(hsNode, true, dom); // 判断dom对应的hsNode是否改变。
     // 改变的话，diff生成一个vDomNode
     if (result) {
-        console.log('result', result);
+        debugger;
         renderComponent(result);
     }
-    isFirstMount = false;
+    render.hasFirstMount = true;
     return result;
 }
 

@@ -11,37 +11,50 @@ import {
     vDomContain
 } from './vnode';
 
-let justOnce = false;
-
-function createRootContainer(hsNode: hsNode, rootDom) {
-    console.log('feesfesfes')
-    vDomContain.vDomTreeMap = vDomContain.vDomTreeMap || new Map();
-    vDomContain.vDomTree = createVDomNode(hsNode, rootDom);
-    // vDomContain.vDomTreeMap.set(vDomContain.vDomTree.id, vDomContain.vDomTree);
-    return vDomContain.vDomTree;
+interface IdiffControl {
+    (
+        hsNode: hsNode,
+        isFirstMount: boolean,
+        rootDom?,
+        nextProps?,
+        nextState?
+    ): void | vDomNode,
+    initialCall?: boolean
 }
 
-const diffControl = function(hsNode: hsNode, isFirstMount: boolean, rootDom?: HtmlSReactElement, nextProps?: object, nextState?: object): undefined | vDomNode {
+const diffControl: IdiffControl = function(
+    hsNode: hsNode,
+    isFirstMount: boolean = false,
+    rootDom?: HtmlSReactElement,
+    nextProps?: object,
+    nextState?: object
+): undefined | vDomNode {
 
     let ret: null | vDomNode = null;
-
-    if (isFirstMount && !justOnce) {
+    if (isFirstMount && !diffControl.initialCall) {
         ret = createRootContainer(hsNode, rootDom);
-        justOnce = true;
+        diffControl.initialCall = true;
     }
 
     if (isFirstMount && !rootDom) {
         console.error('React.render传入的DOM元素不存在!');
         return;
     }
-    
+
     if (rootDom && !isFirstMount) {
         ret = createVDomNode(hsNode, rootDom);
     }
     if (ret) {
         return ret;
     }
+}
 
+
+function createRootContainer(hsNode: hsNode, rootDom) {
+    debugger;
+    vDomContain.vDomTreeMap = vDomContain.vDomTreeMap || new Map();
+    vDomContain.vDomTree = createVDomNode(hsNode, rootDom);
+    return vDomContain.vDomTree;
 }
 
 export default diffControl;

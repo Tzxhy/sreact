@@ -1,43 +1,39 @@
 import {
     vDomContain
 } from '../vdom/vnode';
-
+import {
+    transformedNodeName
+} from '../hs';
 import {hsNode, HtmlSReactElement} from '../vdom/vnode';
 
 export const createElementWrapper = function() {
     return document.createElement('div');
 }
 
-export const createElement = function(hsNode: hsNode | string) {
-    // Strings just convert to #text Nodes:
-    // if ((<string>vnode).split) return document.createTextNode((<string>vnode));
-
-    // create a DOM element with the nodeName of our VDOM element:
+export const createElement = function(hsNode: hsNode) {
     let n;
-    if (typeof hsNode === 'string') {
-        n = createTextNode(hsNode as string);
-    } else {
-        if (typeof hsNode.nodeName === 'string') {
-            n = document.createElement(hsNode.nodeName as string) as HTMLElement;
-        } else if (typeof hsNode.nodeName === 'function') {
-            // function 组件定义TODO
-            const vNode = vDomContain.vDomTreeMap.get(hsNode.id);
-            n = createElementWrapper();
-        } else if (Array.isArray(hsNode)) {
-            n = createElementWrapper();
-            hsNode.map(item => createElement(item)).forEach(
-                item => n.appendChild(item)
-            );
-        }
-        let a = hsNode.attributes;
-        if (a) {
-            Object.keys(a).forEach(k => n.setAttribute(k, (a as {})[k]));
-        }
+    
+    if (hsNode.nodeName === transformedNodeName.FULL_TEXT) {
+        n = createTextNode(hsNode.textValue as string);
+    } else if (typeof hsNode.nodeName === 'string') {
+        n = document.createElement(hsNode.nodeName as string) as HTMLElement;
+    } else if (typeof hsNode.nodeName === 'function') {
+        // function 组件定义TODO
+        const vNode = vDomContain.vDomTreeMap.get(hsNode.id);
+        n = createElementWrapper();
+    } else if (Array.isArray(hsNode)) {
+        n = createElementWrapper();
+        hsNode.map(item => createElement(item)).forEach(
+            item => n.appendChild(item)
+        );
+    }
+    let a = hsNode.attributes;
+    if (a) {
+        Object.keys(a).forEach(k => n.setAttribute(k, (a as {})[k]));
+    }
 
-        // render (build) and then append child nodes:
-        if (hsNode.childrenSlot) {
-            (hsNode.childrenSlot as []).forEach(c => n.appendChild(createElement(c)));
-        }
+    if (hsNode.childrenSlot) {
+        (hsNode.childrenSlot as []).forEach(c => n.appendChild(createElement(c)));
     }
     return n;
 }

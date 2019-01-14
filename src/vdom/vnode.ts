@@ -1,7 +1,10 @@
 import {env} from '../helper/switch';
 import {uniqueId} from '../helper/string';
 import {equals} from '../helper/helper';
-
+import {
+    transformedNodeName,
+    transformChildSlot
+} from '../hs';
 
 export interface nodeName {
     new (props?, ref?, context?): vNode;
@@ -15,7 +18,8 @@ export interface hsNode {
     nodeName: string | nodeName,
     attributes: object | null,
     childrenSlot: Array<hsNode> | null,
-    id: string
+    id: string,
+    textValue?: string
 }
 
 export interface vNode {
@@ -65,36 +69,76 @@ export let vDomContain : {
     vDomTree: null,
     vDomTreeMap: new Map()
 }
+
+const emptyVDomCollection = {
+    hs: {},
+    v: {},
+    vD: {}
+};
+Object.freeze(emptyVDomCollection);
+Object.freeze(emptyVDomCollection.hs);
+Object.freeze(emptyVDomCollection.v);
+Object.freeze(emptyVDomCollection.vD);
+
 function getAndSetMap(id: string, operationFun) {
     const origin = vDomContain.vDomTreeMap.get(id) as vDomCollection || {
         hs: {},
         v: {},
         vD: {}
     };
-    const newData = operationFun(origin);
+    const newData = operationFun({...origin});
     vDomContain.vDomTreeMap.set(id, newData);
+    return true;
 }
 
 export function updateHsNode(id: string, hsNode: hsNode | string) {
-    getAndSetMap(id, (data) => {
+    return getAndSetMap(id, (data) => {
         data.hs = hsNode;
         return data;
     });
 }
 
 export function updateVNode(id: string, vNode: vNode) {
-    getAndSetMap(id, (data) => {
+    return getAndSetMap(id, (data) => {
         data.v = vNode;
         return data;
     });
 }
 
 export function updateVDomNode(id: string, vDomNode: vDomNode) {
-    getAndSetMap(id, (data) => {
+    return getAndSetMap(id, (data) => {
         
         data.vD = vDomNode;
         return data;
     });
+}
+function checkParam(node, paramName) {
+    if (node && !(paramName in node)) {
+        throw new Error('updateNodeByArray传参不对');
+    }
+}
+const checkParamNames = ['nodeName', 'nodeType', 'domNode'];
+function updateNodeByIndex(id, index, node) {
+    switch (index) {
+        case 0:
+            return updateHsNode(id, node);
+        case 1:
+            return updateVNode(id, node);
+        case 2:
+            return updateVDomNode(id, node);
+        default:
+            break;
+    }
+}
+export function updateNodeByArray(id: string, nodeArr: [hsNode?, vNode?, vDomNode?]): boolean {
+
+    nodeArr.forEach((item, index) => {
+        if (item) {
+            checkParam(item, checkParamNames[index]);
+            updateNodeByIndex(id, index, item);
+        }
+    });
+    return true;
 }
 
 export function getNodeById(id: string) {
@@ -105,31 +149,26 @@ if (!equals(env, 'prod')) {
     window.vDomContain = vDomContain;
 }
 
-export function createVNode(hsNode: hsNode | string, isChild = false): vNode {
+export function createVNode(hsNode: hsNode): vNode {
 
     let vNode: vNode;
-    if (typeof hsNode === 'string') { // 字符节点（TEXT）
-        const uId = uniqueId();
+    if (typeof hsNode.nodeName === transformedNodeName.FULL_TEXT) { // 纯文本节点
         vNode = {
             nodeType: NODE_TYPE.TEXT,
-            context: {},
-            id: uId,
-            children: null
+            id: hsNode.id
         }
-        // isChild && updateHsNode(uId, hsNode);
     } else if (typeof hsNode.nodeName === 'string') { // HTML标签
         vNode = {
             nodeType: NODE_TYPE.HTML,
             props: hsNode.attributes || {},
             context: {},
             id: hsNode.id,
-            children: hsNode.childrenSlot && hsNode.childrenSlot.map(item => createVNode(item, true))
+            // children: hsNode.childrenSlot && hsNode.childrenSlot.map(item => createVNode(item))
         }
-        isChild && updateHsNode(hsNode.id, hsNode);
     } else if (typeof hsNode.nodeName === 'function') { // 组件
         const reactComponent : vNode = new hsNode.nodeName({
             ...(hsNode.attributes || EMPTY_OBJ),
-            children: hsNode.childrenSlot
+            children: transformChildSlot(hsNode).childrenSlot
         });
         
         reactComponent.id = hsNode.id;
@@ -138,19 +177,11 @@ export function createVNode(hsNode: hsNode | string, isChild = false): vNode {
         if (!render) {
             throw new Error('React组件必须实现render方法');
         }
-        const com = render.call(reactComponent);
-
-        isChild && updateHsNode(hsNode.id, com);
-
-        const childrenSlot = com.childrenSlot;
-
-        reactComponent.children = childrenSlot && childrenSlot.map(item => createVNode(item, true));
         vNode = reactComponent;
+
     } else { // 数组
         vNode = ({} as vNode);
     }
-
-    // updateVNode(vNode.id, vNode);
 
     return vNode;
 
@@ -161,9 +192,9 @@ export function createVDomNode(hsNode: hsNode, dom?: HTMLElement, parentHsNode?:
 
     const vDomNode: vDomNode = ({} as vDomNode);
     const coll = getNodeById(hsNode.id);
-    debugger;
+    
     console.log('coll', coll);
-    const vNode = coll ? coll.v : createVNode(hsNode);
+    const vNode = coll.v;
 
     let domNode = dom;
 
@@ -195,7 +226,7 @@ export function createVDomNode(hsNode: hsNode, dom?: HTMLElement, parentHsNode?:
     vDomNode.id = hsNode.id;
     vDomNode.hsNode = hsNode;
     vDomNode.vNode = vNode;
-
+    debugger;
     updateVDomNode(vNode.id, vDomNode);
     console.log('ret', vDomNode);
     return vDomNode;
