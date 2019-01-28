@@ -32,7 +32,7 @@ function transformHsNode(hsNode: hsNode): hsNode {
 
     let vNode = createVNode(hsNode);
     let newHsNode: hsNode;
-    
+
     if (vNode.render) { // 组件
         newHsNode = vNode.render.call(vNode);
         newHsNode.id = hsNode.id;
@@ -83,9 +83,7 @@ export function transformChildSlot(hsNode: hsNode): hsNode {
 
             updateNodeByArray(numberHsNode.id, [numberHsNode, vNode]);
             return numberHsNode;
-        }/* else if (typeof item === 'object') {
-            throw new Error('不能直接渲染对象！');
-        }*/
+        }
         return item;
     });
     return newHsNode;

@@ -32,10 +32,4 @@ function renderComponent(vDomNode) {
     return forceUpdate(vDomNode);
 }
 
-
-if ((module as any).hot) {
-  (module as any).hot.dispose(function() {
-    console.log(111)
-  })
-}
 export default render;

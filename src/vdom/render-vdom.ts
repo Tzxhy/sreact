@@ -86,7 +86,7 @@ function createUpdate(vNode: vNode, {
 let renderMode: RENDER_MODE;
 function scheduleWork() {
     isUpdating = true, isWaiting = false;
-    debugger;
+    // debugger;
     switch (renderMode) {
         case RENDER_MODE.FORCE_RENDER:
             if (forceUpdateObj) {
@@ -94,11 +94,11 @@ function scheduleWork() {
             }
             break;
         case RENDER_MODE.ARRAY_RENDER:
-            debugger;
+            // debugger;
             arrayRenderList.forEach(
                 item => performRender(item)
             )
-            debugger;
+            // debugger;
             arrayRenderList.length = 0;
             break;
     }

@@ -32,6 +32,7 @@ export const createElement = function(hsNode: hsNode) {
         const vNode = vCollectionNode.v;
         if (vNode.componentDidMount && !vNode.__hasCalledComponentDidMount) {
             vNode.__hasCalledComponentDidMount = true;
+            debugger;
             vNode.componentDidMount && vNode.componentDidMount();
         }
     }
